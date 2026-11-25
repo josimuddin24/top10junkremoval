@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Meeting</title>
+  <style>
+    :root {
+      --brand: #0069ff;
+      --brand-dark: #0052cc;
+      --whatsapp: #25d366;
+      --sms: #111827;
+      --text: #111827;
+      --muted: #4b5563;
+      --border: #e5e7eb;
+      --surface: #ffffff;
+      --error: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px 48px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: #f9fafb;
+      line-height: 1.5;
+    }
+
+    .booking-card {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    }
+
+    .booking-card h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.4rem, 4vw, 1.85rem);
+    }
+
+    .booking-card .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      color: inherit;
+      background: #fff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(0, 105, 255, 0.18);
+    }
+
+    .field input:invalid:not(:placeholder-shown) {
+      border-color: var(--error);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 8px;
+      padding: 14px 24px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--brand);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--brand-dark);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:focus-visible {
+      outline: 3px solid rgba(0, 105, 255, 0.45);
+      outline-offset: 2px;
+    }
+
+    .form-status {
+      display: none;
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .form-status.is-error {
+      display: block;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--error);
+    }
+
+    .instant-contact {
+      display: none;
+      max-width: 640px;
+      margin: 24px auto 0;
+      padding: 32px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+      text-align: center;
+    }
+
+    .instant-contact.is-visible {
+      display: block;
+      animation: fadeUp 0.4s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .instant-contact h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+    }
+
+    .instant-contact p {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+
+    .instant-contact .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .instant-contact .btn {
+      flex: 1 1 200px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #fff;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .instant-contact .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(17, 24, 39, 0.18);
+    }
+
+    .instant-contact .btn:focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .instant-contact .btn-whatsapp {
+      background: var(--whatsapp);
+    }
+
+    .instant-contact .btn-sms {
+      background: var(--sms);
+    }
+
+    .instant-contact .btn svg {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 12px 12px 32px;
+      }
+
+      .booking-card {
+        padding: 24px 18px;
+        border-radius: 12px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .instant-contact {
+        padding: 24px 18px;
+        border-radius: 12px;
+      }
+
+      .instant-contact .actions {
+        flex-direction: column;
+      }
+
+      .instant-contact .btn {
+        flex: 1 1 auto;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="booking-card">
+    <h1>Book a Meeting</h1>
+    <p class="subtitle">Fill in your details and I'll get back to you to confirm the time.</p>
+
+    <form id="booking-form" novalidate>
+      <p id="form-status" class="form-status" role="alert"></p>
+
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="date">Preferred date</label>
+          <input id="date" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="time">Preferred time</label>
+          <input id="time" name="time" type="time" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="message">What would you like to discuss?</label>
+        <textarea id="message" name="message" placeholder="Tell me briefly about your project or question"></textarea>
+      </div>
+
+      <button class="submit-btn" type="submit">Book meeting</button>
+    </form>
+  </main>
+
+  <section id="instant-contact" class="instant-contact" aria-hidden="true" aria-labelledby="instant-contact-title">
+    <h2 id="instant-contact-title">Your meeting request is in</h2>
+    <p>Want to reach me right away? Choose how you'd like to get in touch.</p>
+    <div class="actions">
+      <a id="whatsapp-btn" class="btn btn-whatsapp" href="#" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.03 1.01-1.03 2.46s1.06 2.85 1.2 3.05c.15.2 2.06 3.15 4.99 4.42.7.3 1.24.48 1.67.61.7.22 1.34.19 1.84.12.56-.08 1.75-.71 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"/>
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.23 8.24z"/>
+        </svg>
+        WhatsApp Now
+      </a>
+      <a id="sms-btn" class="btn btn-sms" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+        </svg>
+        Text Now
+      </a>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var CONTACT = {
+        whatsappNumber: "15551234567",
+        smsNumber: "+15551234567",
+        whatsappMessage: "Hi Josim, I just booked a meeting with you."
+      };
+
+      var form = document.getElementById("booking-form");
+      var status = document.getElementById("form-status");
+      var section = document.getElementById("instant-contact");
+      var whatsappBtn = document.getElementById("whatsapp-btn");
+      var smsBtn = document.getElementById("sms-btn");
+      var dateInput = document.getElementById("date");
+
+      dateInput.min = new Date().toISOString().split("T")[0];
+
+      function applyContactLinks() {
+        var waNumber = CONTACT.whatsappNumber.replace(/[^\d]/g, "");
+        whatsappBtn.href =
+          "https://wa.me/" + waNumber + "?text=" + encodeURIComponent(CONTACT.whatsappMessage);
+        smsBtn.href = "sms:" + CONTACT.smsNumber + "?&body=" + encodeURIComponent(CONTACT.whatsappMessage);
+      }
+
+      function showStatus(message) {
+        status.textContent = message;
+        status.classList.add("is-error");
+      }
+
+      function clearStatus() {
+        status.textContent = "";
+        status.classList.remove("is-error");
+      }
+
+      function showInstantContact() {
+        applyContactLinks();
+        section.classList.add("is-visible");
+        section.setAttribute("aria-hidden", "false");
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      applyContactLinks();
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        clearStatus();
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        var data = new FormData(form);
+        var name = String(data.get("name") || "").trim();
+        var email = String(data.get("email") || "").trim();
+
+        if (!name || !email) {
+          showStatus("Please enter your name and email address.");
+          return;
+        }
+
+        form.querySelector(".submit-btn").disabled = true;
+        form.querySelector(".submit-btn").textContent = "Sending...";
+        showInstantContact();
+      });
+    })();
+  </script>
+</body>
+</html>
